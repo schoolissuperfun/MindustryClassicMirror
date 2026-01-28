@@ -11,21 +11,26 @@
         }
         body{
             margin:0;
+            background-color: #000; /* Added black background so text is visible */
         }
         a{
             display:block;
             color:cyan;
             text-align:center;
+            font-size: 1.5rem;
+            text-decoration: none;
+            margin-top: 20px;
         }
         .title{
             min-width:300px;
-            image-rendering:crisp-edges;
+            image-rendering:pixelated; /* Better for pixel art */
             display:block;
             margin:auto;
         }
         .save-menu{
             width:300px;
             margin:auto;
+            text-align: center;
         }
         p{
             color:white;
@@ -33,9 +38,9 @@
     </style>
 </head>
 <body>
-    <img src="/title.png" class="title">
+    <img src="title.png" class="title">
     <br>
-    <a href="/game.html">Launch Game</a>
+    <a href="game.html">Launch Game</a>
     <hr>
     <div class="save-menu">
         <p><i>The ability to export/import specific saves from the launcher is coming soon!</i></p>
@@ -44,13 +49,12 @@
     </div>
 
     <script>
-
-        // Dear stackoverflow... https://stackoverflow.com/questions/13405129/create-and-save-a-file-with-javascript
+        // Save management script
         function download(data, filename, type="plain/text") {
             var file = new Blob([data], {type: type});
-            if (window.navigator.msSaveOrOpenBlob) // IE10+
+            if (window.navigator.msSaveOrOpenBlob) 
                 window.navigator.msSaveOrOpenBlob(file, filename);
-            else { // Others
+            else { 
                 var a = document.createElement("a"),
                         url = URL.createObjectURL(file);
                 a.href = url;
@@ -74,16 +78,18 @@
 
             input.addEventListener("change", ()=>{
                 const selectedFile = input.files[0];
-                console.log(selectedFile)
-
-
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    let parsed = JSON.parse(e.target.result)
-                    if(!confirm("Are you sure you want to do this? Your current save will be overridden!"))return;
-                    localStorage.clear()
-                    for(let key of Object.keys(parsed)){
-                        localStorage.setItem(key, parsed[key])
+                    try {
+                        let parsed = JSON.parse(e.target.result)
+                        if(!confirm("Are you sure? Your current save will be overridden!")) return;
+                        localStorage.clear()
+                        for(let key of Object.keys(parsed)){
+                            localStorage.setItem(key, parsed[key])
+                        }
+                        alert("Save imported! Launch the game to play.");
+                    } catch(err) {
+                        alert("Error parsing save file.");
                     }
                 };
                 reader.readAsText(selectedFile);
@@ -94,8 +100,6 @@
             download(JSON.stringify(localStorage), "mindustry-classic-web.save")
         })
         document.getElementById("import-save").addEventListener("click", upload)
-
-
     </script>
 </body>
 </html>
